@@ -9,7 +9,7 @@ builder.Services.AddSingleton<CsvDataService>();
 // Configure Kestrel to allow immediate port reuse
 builder.WebHost.UseKestrel(options =>
 {
-    options.ListenLocalhost(5000);
+    options.ListenLocalhost(5115);
     options.ListenLocalhost(5001, listenOptions => listenOptions.UseHttps());
 });
 
