@@ -1,0 +1,5 @@
+code,title,credits,offerings,prerequisites
+COMP1010,Introduction to Programming,6,"S1|S2",
+COMP1020,Data Structures,6,"S1",COMP1010
+MATH1010,Calculus I,6,"S1|S2",
+ENGG1001,Engineering Design,6,"S2",
