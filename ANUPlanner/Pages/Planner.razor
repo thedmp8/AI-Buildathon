@@ -3,7 +3,7 @@
 
 <h2>Degree Planner</h2>
 
-<label>Start date: <input type="date" @bind="StartDate" /></label>
+<label>Start date: <input type="date" value="@StartDateStr" @onchange="HandleDateChange" /></label>
 <label>Degree:
     <select @bind="SelectedDegreeId">
         <option value="">-- choose degree --</option>
@@ -46,14 +46,14 @@ else
 }
 
 @code {
-    string StartDate { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
+    string StartDateStr { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
     List<Degree> Degrees = new();
     List<Course> Courses = new();
     string SelectedDegreeId { get; set; } = string.Empty;
     HashSet<string> SelectedCourses = new();
     string ValidationMessage = string.Empty;
 
-    string CurrentTerm => TermFromDate(StartDate);
+    string CurrentTerm => TermFromDate(StartDateStr);
 
     protected override async Task OnInitializedAsync()
     {
@@ -70,6 +70,12 @@ else
     void ToggleCourse(string code, bool add)
     {
         if (add) SelectedCourses.Add(code); else SelectedCourses.Remove(code);
+        StateHasChanged();
+    }
+
+    void HandleDateChange(ChangeEventArgs e)
+    {
+        StartDateStr = e.Value?.ToString() ?? DateTime.Today.ToString("yyyy-MM-dd");
         StateHasChanged();
     }
 

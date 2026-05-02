@@ -3,5 +3,9 @@
 
 <h1>Welcome</h1>
 <p>
-    <button class="btn" @onclick="() => Nav.NavigateTo("/planner")">Open Planner</button>
+    <button class="btn" @onclick="GotoPlanner">Open Planner</button>
 </p>
+
+@code {
+    void GotoPlanner() => Nav.NavigateTo("/planner");
+}
