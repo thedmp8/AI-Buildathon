@@ -38,25 +38,22 @@ textarea {
 .app-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(320px, 420px) minmax(0, 920px);
-  align-items: stretch;
+  grid-template-columns: minmax(720px, 1fr) minmax(300px, 380px);
+  align-items: start;
   justify-content: center;
   gap: 20px;
   padding: 24px;
 }
 
 .finder-stack {
-  height: min(760px, calc(100vh - 48px));
-  min-height: 520px;
+  min-height: calc(100vh - 48px);
   display: grid;
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto;
   gap: 20px;
 }
 
 .finder-panel,
 .chat-panel {
-  height: min(760px, calc(100vh - 48px));
-  min-height: 520px;
   overflow: hidden;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -68,12 +65,33 @@ textarea {
   min-height: 0;
   height: auto;
   display: grid;
-  grid-template-rows: auto auto auto 1fr;
+  grid-template-rows: auto auto minmax(220px, 0.9fr) auto;
+}
+
+.course-planner {
+  min-height: calc(100vh - 48px);
+}
+
+.exchange-panel {
+  min-height: 300px;
+  grid-template-rows: auto auto minmax(220px, 1fr) auto;
+}
+
+.exchange-panel .finder-results {
+  max-height: 360px;
+}
+
+.exchange-results {
+  border-bottom: 1px solid var(--line);
 }
 
 .chat-panel {
+  position: sticky;
+  top: 24px;
+  height: auto;
+  min-height: 420px;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto minmax(220px, 1fr) auto;
 }
 
 .finder-header,
@@ -86,10 +104,14 @@ textarea {
   border-bottom: 1px solid var(--line);
 }
 
+.chat-header {
+  padding: 18px;
+}
+
 .finder-header {
   align-items: flex-start;
   flex-direction: column;
-  padding: 22px;
+  padding: 18px;
 }
 
 .eyebrow {
@@ -103,9 +125,13 @@ textarea {
 
 h1 {
   margin: 0;
-  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-size: clamp(1.45rem, 4vw, 2.6rem);
   line-height: 1.1;
   letter-spacing: 0;
+}
+
+.chat-panel h1 {
+  font-size: 1.65rem;
 }
 
 h2 {
@@ -137,14 +163,14 @@ h2 {
 }
 
 .finder-search {
-  padding: 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--line);
 }
 
 .finder-search input {
   width: 100%;
-  min-height: 44px;
-  padding: 11px 12px;
+  min-height: 48px;
+  padding: 12px 13px;
   border: 1px solid var(--line);
   border-radius: 8px;
   outline: none;
@@ -160,20 +186,29 @@ h2 {
 .finder-results {
   min-height: 0;
   overflow-y: auto;
-  padding: 12px;
+  padding: 10px;
   background: #fbfcfa;
+}
+
+.course-results {
+  border-bottom: 1px solid var(--line);
+  max-height: 360px;
 }
 
 .finder-result {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 4px;
+  column-gap: 14px;
+  row-gap: 4px;
   padding: 12px;
-  border-bottom: 1px solid var(--line);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #ffffff;
 }
 
 .finder-result:last-child {
-  border-bottom: 0;
+  margin-bottom: 0;
 }
 
 .finder-result strong {
@@ -201,8 +236,7 @@ h2 {
 }
 
 .preference-builder {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--line);
+  padding: 12px 16px;
   background: #ffffff;
 }
 
@@ -211,7 +245,7 @@ h2 {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .preference-header strong {
@@ -224,22 +258,48 @@ h2 {
   white-space: nowrap;
 }
 
-.preference-list {
-  max-height: 150px;
-  overflow-y: auto;
-  display: grid;
+.preference-tools {
+  display: flex;
+  align-items: center;
   gap: 8px;
+}
+
+.preference-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
 }
 
 .preference-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
-  padding: 10px;
+  min-height: 52px;
+  padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fbfcfa;
+}
+
+.preference-item.empty {
+  background: #ffffff;
+  border-style: dashed;
+}
+
+.preference-rank {
+  width: 34px;
+  height: 34px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--assistant);
+  color: var(--accent-strong);
+  font-size: 0.9rem;
+}
+
+.preference-item.empty .preference-rank {
+  color: var(--muted);
 }
 
 .preference-text {
@@ -250,46 +310,34 @@ h2 {
 
 .preference-text strong {
   color: var(--accent-strong);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .preference-item.elective .preference-text strong {
   color: #174f77;
 }
 
+.preference-item.exchange .preference-text strong {
+  color: #174f77;
+}
+
 .preference-text span {
   color: var(--ink);
+  font-size: 0.9rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.preference-item.empty .preference-text strong,
+.preference-item.empty .preference-text span {
+  color: var(--muted);
+}
+
 .preference-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-.small-button {
-  min-width: 0;
-  min-height: 34px;
-  padding: 7px 10px;
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  background: var(--accent);
-  color: #ffffff;
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
-.small-button.secondary {
-  border-color: var(--line);
-  background: #ffffff;
-  color: var(--ink);
-}
-
-.small-button.secondary:hover {
-  background: #eef3f1;
+  gap: 4px;
 }
 
 .empty-state {
@@ -323,13 +371,13 @@ h2 {
   flex-direction: column;
   gap: 14px;
   min-height: 0;
-  padding: 24px;
+  padding: 16px;
   overflow-y: auto;
   background: #fbfcfa;
 }
 
 .message {
-  width: min(78%, 640px);
+  width: 100%;
   padding: 12px 14px;
   border-radius: 8px;
   line-height: 1.5;
@@ -357,8 +405,8 @@ h2 {
 
 .composer {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
+  grid-template-columns: 1fr;
+  gap: 10px;
   padding: 16px;
   border-top: 1px solid var(--line);
   background: var(--panel);
@@ -366,7 +414,7 @@ h2 {
 
 textarea {
   width: 100%;
-  max-height: 170px;
+  max-height: 140px;
   min-height: 48px;
   resize: none;
   padding: 13px 14px;
@@ -403,6 +451,49 @@ button:disabled {
   opacity: 0.65;
 }
 
+.small-button {
+  min-width: 0;
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.small-button.secondary {
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.small-button.secondary:hover {
+  background: #eef3f1;
+}
+
+.icon-button {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.icon-button:hover {
+  background: #eef3f1;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -428,6 +519,18 @@ button:disabled {
   }
 }
 
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .chat-panel {
+    position: static;
+    height: auto;
+  }
+}
+
 @media (max-width: 640px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -437,25 +540,32 @@ button:disabled {
 
   .finder-stack,
   .chat-panel {
-    min-height: 100vh;
-    height: 100vh;
+    min-height: auto;
+    height: auto;
     border: 0;
     border-radius: 0;
   }
 
   .finder-stack {
-    min-height: 100vh;
-    height: auto;
-    grid-template-rows: minmax(420px, 50vh) minmax(420px, 50vh);
+    grid-template-rows: auto auto;
     gap: 0;
   }
 
   .finder-panel {
-    min-height: 420px;
+    min-height: 900px;
     height: auto;
     border: 0;
     border-radius: 0;
     border-bottom: 1px solid var(--line);
+  }
+
+  .exchange-panel {
+    min-height: 420px;
+  }
+
+  .chat-panel {
+    position: static;
+    min-height: 420px;
   }
 
   .finder-header,
@@ -481,13 +591,19 @@ button:disabled {
     width: 100%;
   }
 
-  .finder-result,
-  .preference-item {
+  .finder-result {
     grid-template-columns: 1fr;
   }
 
-  .result-actions,
+  .preference-item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
   .preference-actions {
+    grid-column: 2;
+  }
+
+  .result-actions {
     grid-column: 1;
     grid-row: auto;
     flex-wrap: wrap;

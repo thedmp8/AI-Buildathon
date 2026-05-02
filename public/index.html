@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ChatGPT API Website</title>
+    <title>ANU Course Planner</title>
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
     <main class="app-shell">
       <aside class="finder-stack">
-        <section class="finder-panel" aria-label="Search courses">
+        <section class="finder-panel course-planner" aria-label="Search courses">
           <header class="finder-header">
             <div>
               <p class="eyebrow">Course Finder</p>
-              <h2>Search course codes or names</h2>
+              <h2>Build course/elective preferences</h2>
             </div>
             <span class="finder-count" id="course-count">Loading</span>
           </header>
@@ -28,18 +28,21 @@
             >
           </div>
 
+          <div class="finder-results course-results" id="course-results" aria-live="polite"></div>
+
           <div class="preference-builder" aria-label="Selected course and elective preferences">
             <div class="preference-header">
-              <strong>Preferences</strong>
-              <span id="preference-count">0 / 8 selected</span>
+              <strong>Preference order 1-8</strong>
+              <div class="preference-tools">
+                <span id="preference-count">0 / 8 selected</span>
+                <button class="small-button secondary" id="clear-preferences" type="button">Clear</button>
+              </div>
             </div>
             <div class="preference-list" id="preference-list"></div>
           </div>
-
-          <div class="finder-results" id="course-results" aria-live="polite"></div>
         </section>
 
-        <section class="finder-panel" aria-label="Search ANU exchange programs">
+        <section class="finder-panel exchange-panel" aria-label="Search ANU exchange programs">
           <header class="finder-header">
             <div>
               <p class="eyebrow">Exchange Finder</p>
@@ -58,15 +61,28 @@
             >
           </div>
 
-          <div class="finder-results" id="program-results" aria-live="polite"></div>
+          <div class="finder-results exchange-results" id="program-results" aria-live="polite"></div>
+
+          <div class="preference-builder exchange-preference-builder" aria-label="Selected exchange preferences">
+            <div class="preference-header">
+              <strong>Exchange preference order 1-5</strong>
+              <div class="preference-tools">
+                <span id="exchange-preference-count">0 / 5 selected</span>
+                <button class="small-button secondary" id="clear-exchange-preferences" type="button">
+                  Clear
+                </button>
+              </div>
+            </div>
+            <div class="preference-list exchange-preference-list" id="exchange-preference-list"></div>
+          </div>
         </section>
       </aside>
 
       <section class="chat-panel" aria-label="Chat with ChatGPT">
         <header class="chat-header">
           <div>
-            <p class="eyebrow">OpenAI Responses API</p>
-            <h1>ChatGPT API Website</h1>
+            <p class="eyebrow">AI Assistant</p>
+            <h1>ANU Course Planner</h1>
           </div>
           <span class="status-pill" id="status-pill">
             <span class="status-dot" aria-hidden="true"></span>

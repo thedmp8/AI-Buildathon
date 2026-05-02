@@ -9,24 +9,32 @@ const courseResults = document.querySelector("#course-results");
 const courseCount = document.querySelector("#course-count");
 const preferenceCount = document.querySelector("#preference-count");
 const preferenceList = document.querySelector("#preference-list");
+const clearPreferencesButton = document.querySelector("#clear-preferences");
 const programSearchInput = document.querySelector("#program-search-input");
 const programResults = document.querySelector("#program-results");
 const programCount = document.querySelector("#program-count");
+const exchangePreferenceCount = document.querySelector("#exchange-preference-count");
+const exchangePreferenceList = document.querySelector("#exchange-preference-list");
+const clearExchangePreferencesButton = document.querySelector("#clear-exchange-preferences");
 
 const MAX_PREFERENCES = 8;
+const MAX_EXCHANGE_PREFERENCES = 5;
 const STORAGE_KEY = "anu-course-preferences";
+const EXCHANGE_STORAGE_KEY = "anu-exchange-preferences";
 const welcomeMessage = {
   role: "assistant",
   content: "Hi. Ask me something and I will answer through the ChatGPT API."
 };
 const messages = [];
 let preferences = loadPreferences();
+let exchangePreferences = loadExchangePreferences();
 let courses = [];
 let electiveSubjectAreas = [];
 let programs = [];
 
 renderMessages();
 renderPreferences();
+renderExchangePreferences();
 loadCourses();
 loadElectiveSubjectAreas();
 loadPrograms();
@@ -81,7 +89,11 @@ input.addEventListener("input", resizeInput);
 courseSearchInput.addEventListener("input", renderCourseResults);
 courseResults.addEventListener("click", handleCourseResultClick);
 preferenceList.addEventListener("click", handlePreferenceClick);
+clearPreferencesButton.addEventListener("click", clearPreferences);
 programSearchInput.addEventListener("input", renderProgramResults);
+programResults.addEventListener("click", handleProgramResultClick);
+exchangePreferenceList.addEventListener("click", handleExchangePreferenceClick);
+clearExchangePreferencesButton.addEventListener("click", clearExchangePreferences);
 
 input.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && !event.shiftKey) {
@@ -187,7 +199,7 @@ function renderCourseResults() {
   const query = courseSearchInput.value.trim().toLowerCase();
 
   if (!query) {
-    courseResults.replaceChildren(createEmptyState("Search by course code or course name."));
+    courseResults.replaceChildren(createEmptyState("Search by course code, course name, or elective area."));
     return;
   }
 
@@ -269,25 +281,22 @@ function handleCourseResultClick(event) {
 }
 
 function addPreference(item, requestedAmount) {
-  const remaining = MAX_PREFERENCES - getPreferenceTotal();
+  const remaining = MAX_PREFERENCES - preferences.length;
 
   if (remaining <= 0) {
     return;
   }
 
   const amount = Math.min(Math.max(requestedAmount, 1), remaining);
-  const existing = preferences.find((preference) => preference.id === item.id);
 
-  if (existing) {
-    if (existing.type === "course") {
-      return;
-    }
+  if (item.type === "course" && preferences.some((preference) => preference.id === item.id)) {
+    return;
+  }
 
-    existing.count += amount;
-  } else {
+  for (let index = 0; index < amount; index += 1) {
     preferences.push({
       ...item,
-      count: item.type === "course" ? 1 : amount
+      slotId: `${item.id}:${Date.now()}:${Math.random().toString(36).slice(2)}`
     });
   }
 
@@ -304,26 +313,23 @@ function handlePreferenceClick(event) {
   }
 
   const id = button.dataset.id;
-  const preference = preferences.find((item) => item.id === id);
+  const index = preferences.findIndex((item) => item.slotId === id);
+  const preference = preferences[index];
 
   if (!preference) {
     return;
   }
 
   if (button.dataset.action === "remove") {
-    preferences = preferences.filter((item) => item.id !== id);
+    preferences.splice(index, 1);
   }
 
-  if (button.dataset.action === "decrease") {
-    preference.count -= 1;
-
-    if (preference.count <= 0) {
-      preferences = preferences.filter((item) => item.id !== id);
-    }
+  if (button.dataset.action === "up" && index > 0) {
+    [preferences[index - 1], preferences[index]] = [preferences[index], preferences[index - 1]];
   }
 
-  if (button.dataset.action === "increase" && getPreferenceTotal() < MAX_PREFERENCES) {
-    preference.count += 1;
+  if (button.dataset.action === "down" && index < preferences.length - 1) {
+    [preferences[index], preferences[index + 1]] = [preferences[index + 1], preferences[index]];
   }
 
   savePreferences();
@@ -332,46 +338,53 @@ function handlePreferenceClick(event) {
 }
 
 function renderPreferences() {
-  const total = getPreferenceTotal();
+  const total = preferences.length;
   preferenceCount.textContent = `${total} / ${MAX_PREFERENCES} selected`;
-
-  if (!preferences.length) {
-    preferenceList.replaceChildren(createEmptyState("Add courses or electives from the search results."));
-    return;
-  }
+  clearPreferencesButton.disabled = total === 0;
 
   preferenceList.replaceChildren(
-    ...preferences.map((preference) => {
+    ...Array.from({ length: MAX_PREFERENCES }, (_, index) => {
+      const preference = preferences[index];
       const item = document.createElement("article");
-      item.className = `preference-item ${preference.type}`;
+      item.className = `preference-item ${preference ? preference.type : "empty"}`;
+
+      const rank = document.createElement("strong");
+      rank.className = "preference-rank";
+      rank.textContent = String(index + 1);
 
       const text = document.createElement("div");
       text.className = "preference-text";
 
       const label = document.createElement("strong");
-      label.textContent =
-        preference.type === "elective" ? `${preference.count} x ${preference.label}` : preference.label;
+      label.textContent = preference?.label || "Empty preference";
 
       const title = document.createElement("span");
-      title.textContent = preference.title;
+      title.textContent = preference?.title || "Add a course or elective from the search results.";
 
       text.append(label, title);
 
       const actions = document.createElement("div");
       actions.className = "preference-actions";
 
-      if (preference.type === "elective") {
+      if (preference) {
         actions.append(
-          createPreferenceButton("-", "decrease", preference.id),
-          createPreferenceButton("+", "increase", preference.id, total >= MAX_PREFERENCES)
+          createPreferenceButton("↑", "up", preference.slotId, index === 0, "Move up"),
+          createPreferenceButton("↓", "down", preference.slotId, index === preferences.length - 1, "Move down"),
+          createPreferenceButton("×", "remove", preference.slotId, false, "Remove")
         );
       }
 
-      actions.append(createPreferenceButton("Remove", "remove", preference.id));
-      item.append(text, actions);
+      item.append(rank, text, actions);
       return item;
     })
   );
+}
+
+function clearPreferences() {
+  preferences = [];
+  savePreferences();
+  renderPreferences();
+  renderCourseResults();
 }
 
 function createActionButton(text, action, id, type, label, title, amount) {
@@ -382,7 +395,7 @@ function createActionButton(text, action, id, type, label, title, amount) {
   button.type = "button";
   button.className = "small-button";
   button.textContent = isDuplicateCourse ? "Added" : text;
-  button.disabled = getPreferenceTotal() >= MAX_PREFERENCES || isDuplicateCourse;
+  button.disabled = preferences.length >= MAX_PREFERENCES || isDuplicateCourse;
   button.dataset.action = action;
   button.dataset.id = id;
   button.dataset.type = type;
@@ -392,19 +405,17 @@ function createActionButton(text, action, id, type, label, title, amount) {
   return button;
 }
 
-function createPreferenceButton(text, action, id, disabled = false) {
+function createPreferenceButton(text, action, id, disabled = false, title = text) {
   const button = document.createElement("button");
   button.type = "button";
-  button.className = "small-button secondary";
+  button.className = "icon-button";
   button.textContent = text;
+  button.title = title;
+  button.setAttribute("aria-label", title);
   button.disabled = disabled;
   button.dataset.action = action;
   button.dataset.id = id;
   return button;
-}
-
-function getPreferenceTotal() {
-  return preferences.reduce((total, preference) => total + preference.count, 0);
 }
 
 function savePreferences() {
@@ -423,26 +434,34 @@ function loadPreferences() {
       .filter((item) => ["course", "elective"].includes(item.type))
       .map((item) => ({
         id: String(item.id || ""),
+        slotId: item.slotId ? String(item.slotId) : "",
         type: item.type,
         label: String(item.label || ""),
         title: String(item.title || ""),
         count: Math.max(1, Number(item.count || 1))
       }))
       .filter((item) => item.id && item.title);
-    const cappedItems = [];
-    let total = 0;
+    const expandedItems = [];
 
     for (const item of cleanItems) {
-      if (total >= MAX_PREFERENCES) {
+      if (expandedItems.length >= MAX_PREFERENCES) {
         break;
       }
 
-      const count = item.type === "course" ? 1 : Math.min(item.count, MAX_PREFERENCES - total);
-      cappedItems.push({ ...item, count });
-      total += count;
+      const count = item.slotId ? 1 : item.count;
+
+      for (let index = 0; index < count && expandedItems.length < MAX_PREFERENCES; index += 1) {
+        expandedItems.push({
+          id: item.id,
+          slotId: item.slotId || `${item.id}:${Date.now()}:${Math.random().toString(36).slice(2)}`,
+          type: item.type,
+          label: item.label,
+          title: item.title
+        });
+      }
     }
 
-    return cappedItems;
+    return expandedItems;
   } catch {
     return [];
   }
@@ -487,6 +506,7 @@ function renderProgramResults() {
     ...matches.map((program) => {
       const item = document.createElement("article");
       item.className = "finder-result";
+      const id = `program:${program.name || ""}:${program.city || ""}:${program.country || ""}`;
 
       const name = document.createElement("strong");
       name.textContent = program.name || "Unnamed program";
@@ -494,10 +514,189 @@ function renderProgramResults() {
       const location = document.createElement("span");
       location.textContent = [program.city, program.country, program.region].filter(Boolean).join(" - ");
 
-      item.append(name, location);
+      const actions = document.createElement("div");
+      actions.className = "result-actions";
+      actions.append(
+        createExchangeActionButton(
+          "Add",
+          id,
+          program.name || "Unnamed program",
+          location.textContent || "No location"
+        )
+      );
+
+      item.append(name, location, actions);
       return item;
     })
   );
+}
+
+function handleProgramResultClick(event) {
+  const button = event.target.closest("button[data-action='add-exchange']");
+
+  if (!button) {
+    return;
+  }
+
+  addExchangePreference({
+    id: button.dataset.id,
+    title: button.dataset.title,
+    label: button.dataset.label
+  });
+}
+
+function addExchangePreference(item) {
+  if (exchangePreferences.length >= MAX_EXCHANGE_PREFERENCES) {
+    return;
+  }
+
+  if (exchangePreferences.some((preference) => preference.id === item.id)) {
+    return;
+  }
+
+  exchangePreferences.push({
+    ...item,
+    slotId: `${item.id}:${Date.now()}:${Math.random().toString(36).slice(2)}`
+  });
+
+  saveExchangePreferences();
+  renderExchangePreferences();
+  renderProgramResults();
+}
+
+function handleExchangePreferenceClick(event) {
+  const button = event.target.closest("button[data-action]");
+
+  if (!button) {
+    return;
+  }
+
+  const id = button.dataset.id;
+  const index = exchangePreferences.findIndex((item) => item.slotId === id);
+  const preference = exchangePreferences[index];
+
+  if (!preference) {
+    return;
+  }
+
+  if (button.dataset.action === "remove") {
+    exchangePreferences.splice(index, 1);
+  }
+
+  if (button.dataset.action === "up" && index > 0) {
+    [exchangePreferences[index - 1], exchangePreferences[index]] = [
+      exchangePreferences[index],
+      exchangePreferences[index - 1]
+    ];
+  }
+
+  if (button.dataset.action === "down" && index < exchangePreferences.length - 1) {
+    [exchangePreferences[index], exchangePreferences[index + 1]] = [
+      exchangePreferences[index + 1],
+      exchangePreferences[index]
+    ];
+  }
+
+  saveExchangePreferences();
+  renderExchangePreferences();
+  renderProgramResults();
+}
+
+function renderExchangePreferences() {
+  const total = exchangePreferences.length;
+  exchangePreferenceCount.textContent = `${total} / ${MAX_EXCHANGE_PREFERENCES} selected`;
+  clearExchangePreferencesButton.disabled = total === 0;
+
+  exchangePreferenceList.replaceChildren(
+    ...Array.from({ length: MAX_EXCHANGE_PREFERENCES }, (_, index) => {
+      const preference = exchangePreferences[index];
+      const item = document.createElement("article");
+      item.className = `preference-item exchange ${preference ? "" : "empty"}`;
+
+      const rank = document.createElement("strong");
+      rank.className = "preference-rank";
+      rank.textContent = String(index + 1);
+
+      const text = document.createElement("div");
+      text.className = "preference-text";
+
+      const title = document.createElement("strong");
+      title.textContent = preference?.title || "Empty exchange preference";
+
+      const label = document.createElement("span");
+      label.textContent = preference?.label || "Add a program from the exchange search results.";
+
+      text.append(title, label);
+
+      const actions = document.createElement("div");
+      actions.className = "preference-actions";
+
+      if (preference) {
+        actions.append(
+          createPreferenceButton("↑", "up", preference.slotId, index === 0, "Move up"),
+          createPreferenceButton(
+            "↓",
+            "down",
+            preference.slotId,
+            index === exchangePreferences.length - 1,
+            "Move down"
+          ),
+          createPreferenceButton("×", "remove", preference.slotId, false, "Remove")
+        );
+      }
+
+      item.append(rank, text, actions);
+      return item;
+    })
+  );
+}
+
+function clearExchangePreferences() {
+  exchangePreferences = [];
+  saveExchangePreferences();
+  renderExchangePreferences();
+  renderProgramResults();
+}
+
+function createExchangeActionButton(text, id, title, label) {
+  const button = document.createElement("button");
+  const existing = exchangePreferences.some((preference) => preference.id === id);
+
+  button.type = "button";
+  button.className = "small-button";
+  button.textContent = existing ? "Added" : text;
+  button.disabled = exchangePreferences.length >= MAX_EXCHANGE_PREFERENCES || existing;
+  button.dataset.action = "add-exchange";
+  button.dataset.id = id;
+  button.dataset.title = title;
+  button.dataset.label = label;
+  return button;
+}
+
+function saveExchangePreferences() {
+  localStorage.setItem(EXCHANGE_STORAGE_KEY, JSON.stringify(exchangePreferences));
+}
+
+function loadExchangePreferences() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(EXCHANGE_STORAGE_KEY) || "[]");
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .map((item) => ({
+        id: String(item.id || ""),
+        slotId: String(item.slotId || `${item.id || ""}:${Math.random().toString(36).slice(2)}`),
+        title: String(item.title || ""),
+        label: String(item.label || "")
+      }))
+      .filter((item) => item.id && item.title)
+      .slice(0, MAX_EXCHANGE_PREFERENCES);
+  } catch {
+    return [];
+  }
 }
 
 function createEmptyState(message) {
