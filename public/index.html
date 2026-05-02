@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ANU Degree Planner (Prototype)</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; }
+      label { display:block; margin-top:8px }
+      .course { border:1px solid #ddd; padding:8px; margin:6px 0 }
+      .warning { color: #a33 }
+    </style>
+  </head>
+  <body>
+    <h1>ANU Degree Planner (Prototype)</h1>
+    <form id="startForm">
+      <label>Start Date: <input type="date" id="startDate" required /></label>
+      <label>Degree: <select id="degreeSelect"></select></label>
+      <button type="submit">Load Courses</button>
+    </form>
+
+    <h2>Available Courses</h2>
+    <div id="courses"></div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

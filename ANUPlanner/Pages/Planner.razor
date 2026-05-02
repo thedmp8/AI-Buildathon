@@ -1,0 +1,90 @@
+@page "/planner"
+@inject CsvDataService DataService
+
+<h2>Degree Planner</h2>
+
+<label>Start date: <input type="date" @bind="StartDate" /></label>
+<label>Degree:
+    <select @bind="SelectedDegreeId">
+        <option value="">-- choose degree --</option>
+        @foreach (var d in Degrees)
+        {
+            <option value="@d.Id">@d.Name</option>
+        }
+    </select>
+</label>
+
+<h3>Available Courses for term @CurrentTerm</h3>
+@if (Courses is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    foreach (var c in Courses)
+    {
+        var offered = c.Offerings.Contains(CurrentTerm);
+        var prereqsMet = c.Prerequisites.All(p => SelectedCourses.Contains(p));
+        <div style="border:1px solid #ddd; padding:8px; margin-bottom:6px">
+            <input type="checkbox" @onchange="(e) => ToggleCourse(c.Code, e.Value != null && (bool)e.Value)" checked="@SelectedCourses.Contains(c.Code)" disabled="@( !offered || !prereqsMet )" />
+            <strong>@c.Code</strong> — @c.Title (@c.Credits cp)
+            <div style="color:@(offered?"green":"#a33")">@(offered?"Offered":"Not offered this term")</div>
+            <div>Prerequisites: @(c.Prerequisites.Count==0?"None":string.Join(",", c.Prerequisites))</div>
+            @if (!prereqsMet && c.Prerequisites.Count>0)
+            {
+                <div style="color:#a33">Prerequisites not met</div>
+            }
+        </div>
+    }
+}
+
+<button @onclick="ValidatePlan">Validate Plan</button>
+
+@if (!string.IsNullOrEmpty(ValidationMessage))
+{
+    <div style="margin-top:12px; padding:8px; border:1px solid #888">@ValidationMessage</div>
+}
+
+@code {
+    string StartDate { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
+    List<Degree> Degrees = new();
+    List<Course> Courses = new();
+    string SelectedDegreeId { get; set; } = string.Empty;
+    HashSet<string> SelectedCourses = new();
+    string ValidationMessage = string.Empty;
+
+    string CurrentTerm => TermFromDate(StartDate);
+
+    protected override async Task OnInitializedAsync()
+    {
+        Degrees = await DataService.GetDegreesAsync();
+        Courses = await DataService.GetCoursesAsync();
+    }
+
+    static string TermFromDate(string dateStr)
+    {
+        if (!DateTime.TryParse(dateStr, out var d)) return "S1";
+        return d.Month <= 6 ? "S1" : "S2";
+    }
+
+    void ToggleCourse(string code, bool add)
+    {
+        if (add) SelectedCourses.Add(code); else SelectedCourses.Remove(code);
+        StateHasChanged();
+    }
+
+    void ValidatePlan()
+    {
+        ValidationMessage = string.Empty;
+        var degree = Degrees.FirstOrDefault(d => d.Id == SelectedDegreeId);
+        if (degree == null) { ValidationMessage = "Select a degree."; return; }
+        var selected = Courses.Where(c => SelectedCourses.Contains(c.Code)).ToList();
+        var totalCredits = selected.Sum(c => c.Credits);
+        var missingCores = degree.CoreCourses.Where(cc => !SelectedCourses.Contains(cc)).ToList();
+        var meetsCredits = totalCredits >= degree.RequiredCredits;
+        ValidationMessage = $"Selected credits: {totalCredits} / {degree.RequiredCredits}. ";
+        if (meetsCredits) ValidationMessage += "Credit requirement met. "; else ValidationMessage += "Credit requirement NOT met. ";
+        if (missingCores.Any()) ValidationMessage += "Missing core courses: " + string.Join(",", missingCores);
+        else ValidationMessage += "All core courses included.";
+    }
+}

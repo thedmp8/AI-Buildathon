@@ -1,0 +1,16 @@
+@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <h3>ANU Planner</h3>
+    </div>
+    <div class="main">
+        @Body
+    </div>
+</div>
+
+<style>
+    .page { display:flex; }
+    .sidebar { width:200px; padding:10px; border-right:1px solid #ddd }
+    .main { padding:16px; flex:1 }
+</style>
