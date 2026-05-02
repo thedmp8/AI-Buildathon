@@ -21,7 +21,7 @@ const exchangePreferenceCount = document.querySelector("#exchange-preference-cou
 const exchangePreferenceList = document.querySelector("#exchange-preference-list");
 const clearExchangePreferencesButton = document.querySelector("#clear-exchange-preferences");
 
-const MAX_PREFERENCES = 8;
+const MAX_PREFERENCES = 5;
 const MAX_EXCHANGE_PREFERENCES = 5;
 const STORAGE_KEY = "anu-course-preferences";
 const EXCHANGE_STORAGE_KEY = "anu-exchange-preferences";

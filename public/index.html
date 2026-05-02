@@ -11,77 +11,76 @@
   </head>
   <body>
     <main class="app-shell">
-      <aside class="finder-stack">
-        <section class="finder-panel course-planner" aria-label="Search courses">
-          <header class="finder-header">
-            <div>
-              <p class="eyebrow">Course Finder</p>
-              <h2>Build course/elective preferences</h2>
-            </div>
-            <span class="finder-count" id="course-count">Loading</span>
-          </header>
 
-          <div class="finder-search">
-            <label class="sr-only" for="course-search-input">Search courses</label>
-            <input
-              id="course-search-input"
-              type="search"
-              placeholder="Try COMP, MATH2322, accounting, psychology"
-              autocomplete="off"
-            >
+      <section class="finder-panel course-planner" aria-label="Search courses">
+        <header class="finder-header">
+          <div>
+            <p class="eyebrow">Course Finder</p>
+            <h2>Build course/elective preferences</h2>
           </div>
+          <span class="finder-count" id="course-count">Loading</span>
+        </header>
 
-          <div class="finder-results course-results" id="course-results" aria-live="polite"></div>
+        <div class="finder-search">
+          <label class="sr-only" for="course-search-input">Search courses</label>
+          <input
+            id="course-search-input"
+            type="search"
+            placeholder="Try COMP, MATH2322, accounting, psychology"
+            autocomplete="off"
+          >
+        </div>
 
-          <div class="preference-builder" aria-label="Selected course and elective preferences">
-            <div class="preference-header">
-              <strong>Preference order 1-8</strong>
-              <div class="preference-tools">
-                <span id="preference-count">0 / 8 selected</span>
-                <button class="small-button secondary" id="clear-preferences" type="button">Clear</button>
-              </div>
+        <div class="finder-results course-results" id="course-results" aria-live="polite"></div>
+
+        <div class="preference-builder" aria-label="Selected course and elective preferences">
+          <div class="preference-header">
+            <strong>Preference order 1-5</strong>
+            <div class="preference-tools">
+              <span id="preference-count">0 / 5 selected</span>
+              <button class="small-button secondary" id="clear-preferences" type="button">Clear</button>
             </div>
-            <div class="preference-list" id="preference-list"></div>
           </div>
-        </section>
+          <div class="preference-list" id="preference-list"></div>
+        </div>
+      </section>
 
-        <section class="finder-panel exchange-panel" aria-label="Search ANU exchange programs">
-          <header class="finder-header">
-            <div>
-              <p class="eyebrow">Exchange Finder</p>
-              <h2>Search ANU exchange programs</h2>
+      <section class="finder-panel exchange-panel" aria-label="Search ANU exchange programs">
+        <header class="finder-header">
+          <div>
+            <p class="eyebrow">Exchange Finder</p>
+            <h2>Search ANU exchange programs</h2>
+          </div>
+          <span class="finder-count" id="program-count">Loading</span>
+        </header>
+
+        <div class="finder-search">
+          <label class="sr-only" for="program-search-input">Search exchange programs</label>
+          <input
+            id="program-search-input"
+            type="search"
+            placeholder="Try Japan, Copenhagen, Bocconi"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="finder-results exchange-results" id="program-results" aria-live="polite"></div>
+
+        <div class="preference-builder exchange-preference-builder" aria-label="Selected exchange preferences">
+          <div class="preference-header">
+            <strong>Exchange preference order 1-5</strong>
+            <div class="preference-tools">
+              <span id="exchange-preference-count">0 / 5 selected</span>
+              <button class="small-button secondary" id="clear-exchange-preferences" type="button">
+                Clear
+              </button>
             </div>
-            <span class="finder-count" id="program-count">Loading</span>
-          </header>
-
-          <div class="finder-search">
-            <label class="sr-only" for="program-search-input">Search exchange programs</label>
-            <input
-              id="program-search-input"
-              type="search"
-              placeholder="Try Japan, Copenhagen, Bocconi"
-              autocomplete="off"
-            >
           </div>
+          <div class="preference-list exchange-preference-list" id="exchange-preference-list"></div>
+        </div>
+      </section>
 
-          <div class="finder-results exchange-results" id="program-results" aria-live="polite"></div>
-
-          <div class="preference-builder exchange-preference-builder" aria-label="Selected exchange preferences">
-            <div class="preference-header">
-              <strong>Exchange preference order 1-5</strong>
-              <div class="preference-tools">
-                <span id="exchange-preference-count">0 / 5 selected</span>
-                <button class="small-button secondary" id="clear-exchange-preferences" type="button">
-                  Clear
-                </button>
-              </div>
-            </div>
-            <div class="preference-list exchange-preference-list" id="exchange-preference-list"></div>
-          </div>
-        </section>
-      </aside>
-
-      <section class="chat-panel" aria-label="Chat with ChatGPT">
+      <section class="chat-panel" aria-label="Exchange Assessment">
         <header class="chat-header">
           <div>
             <p class="eyebrow">Exchange Assessment</p>
@@ -116,12 +115,13 @@
             id="message-input"
             name="message"
             rows="1"
-            placeholder="Ask a question"
+            placeholder="Ask a follow-up question"
             autocomplete="off"
           ></textarea>
           <button type="submit" id="send-button">Send</button>
         </form>
       </section>
+
     </main>
 
     <script src="/app.js" type="module"></script>
