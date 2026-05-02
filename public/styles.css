@@ -91,7 +91,7 @@ textarea {
   height: auto;
   min-height: 420px;
   display: grid;
-  grid-template-rows: auto minmax(220px, 1fr) auto;
+  grid-template-rows: auto auto minmax(260px, 1fr) minmax(140px, auto) auto;
 }
 
 .finder-header,
@@ -374,6 +374,182 @@ h2 {
   padding: 16px;
   overflow-y: auto;
   background: #fbfcfa;
+}
+
+.assessment-controls {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.assessment-controls textarea {
+  min-height: 88px;
+}
+
+.assessment-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.assessment-report {
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+  background: #fbfcfa;
+}
+
+.report-card,
+.destination-card,
+.mini-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.report-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.report-card h3,
+.report-card h4,
+.report-card h5 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.progress-card h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-card p {
+  margin: 0;
+}
+
+.progress-elapsed {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.progress-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  animation: pulse 900ms ease-in-out infinite;
+}
+
+.destination-card {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+}
+
+.compact-assessment-card {
+  gap: 10px;
+}
+
+.compact-assessment-card p {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.destination-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mini-card {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+
+.report-subsection {
+  display: grid;
+  gap: 8px;
+}
+
+.definition-list {
+  display: grid;
+  grid-template-columns: minmax(110px, auto) minmax(0, 1fr);
+  gap: 6px 10px;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.definition-list dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.definition-list dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.definition-list a {
+  color: var(--accent-strong);
+}
+
+.report-list {
+  display: grid;
+  gap: 6px;
+}
+
+.report-list ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.substitute-list {
+  display: grid;
+  gap: 6px;
+}
+
+.substitute-list p,
+.substitute-list ul {
+  margin: 0;
+}
+
+.substitute-list ul {
+  padding-left: 18px;
+}
+
+.substitute-list li {
+  margin: 3px 0;
+  line-height: 1.45;
+}
+
+.substitute-list a {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.verdict-badge {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: var(--assistant);
+  color: var(--accent-strong);
+  font-size: 0.84rem;
+  font-weight: 800;
 }
 
 .message {
